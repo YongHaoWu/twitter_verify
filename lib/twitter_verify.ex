@@ -5,7 +5,7 @@ defmodule TwitterVerify do
 
   def request(method, url, access_token, access_token_secret) do
     response =
-      OAuth.request(method, url, %{},
+      oauth_request(method, url, %{},
         Application.get_env(:twitter, :consumer_key),
         Application.get_env(:twitter, :consumer_secret),
         access_token, access_token_secret)
@@ -17,7 +17,7 @@ defmodule TwitterVerify do
     end
   end
 
-  def request(:get, url, params, consumer_key, consumer_secret, access_token, access_token_secret) do
+  def oauth_request(:get, url, params, consumer_key, consumer_secret, access_token, access_token_secret) do
     Oauth.oauth_get(url, params, consumer_key, consumer_secret, access_token, access_token_secret, [])
   end
 
