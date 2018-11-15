@@ -1,20 +1,24 @@
 defmodule TwitterVerify do
+  require Logger
   def verify_credentials(access_token, access_token_secret) do
-    request(:get, "1.1/account/verify_credentials.json", access_token, access_token_secret)
+    request(:get, "https://api.twitter.com/1.1/account/verify_credentials.json", access_token, access_token_secret)
   end
 
   def request(method, url, access_token, access_token_secret) do
-    response =
-      oauth_request(method, url, %{},
-        Application.get_env(:twitter, :consumer_key),
-        Application.get_env(:twitter, :consumer_secret),
-        access_token, access_token_secret)
-    case response do
+    oauth_request(method, url, [],
+      Application.get_env(:twitter, :consumer_key),
+      Application.get_env(:twitter, :consumer_secret),
+      access_token, access_token_secret)
+    |> case do
       {:ok, body} ->
-        verify_response(body)
+        body
       error ->
-        error
-    end
+        case Ejoy.Jiffy.decode(error) do
+          {:ok, ret} -> ret
+          _ -> error
+        end
+     end
+    |> verify_response()
   end
 
   def oauth_request(:get, url, params, consumer_key, consumer_secret, access_token, access_token_secret) do
@@ -40,8 +44,6 @@ defmodule Oauth do
       "get", url, params, consumer_key, consumer_secret, access_token, access_token_secret)
     encoded_params = URI.encode_query(signed_params)
     Ejoy.HttpRPC.json_get(url <> "?" <> encoded_params, %{})
-    #request = {to_charlist(url <> "?" <> encoded_params), []}
-    #:httpc.request(method, request, [{:autoredirect, false}] ++ proxy_option(), options)
   end
 
   defp get_signed_params(method, url, params, consumer_key, consumer_secret, access_token, access_token_secret) do
