@@ -25,17 +25,17 @@ defmodule TwitterVerify do
     Oauth.oauth_get(url, params, consumer_key, consumer_secret, access_token, access_token_secret, [])
   end
 
-  def verify_response(body) do
-    if is_list(body) do
-      body
-    else
-      case Map.get(body, :errors, nil) || Map.get(body, :error, nil) do
-        nil -> body
-        error ->
-          error
-      end
+  def verify_response(body) when is_map(body) do
+    case Map.get(body, :errors, nil) || Map.get(body, :error, nil) do
+      nil -> body
+      error -> error
     end
   end
+
+  def verify_response(body) do
+      body
+  end
+
 end
 
 defmodule Oauth do
