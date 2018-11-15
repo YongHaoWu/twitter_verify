@@ -6,8 +6,8 @@ defmodule TwitterVerify do
 
   def request(method, url, access_token, access_token_secret) do
     oauth_request(method, url, [],
-      Application.get_env(:twitter, :consumer_key),
-      Application.get_env(:twitter, :consumer_secret),
+      Application.get_env(:twitter_verify, :consumer_key),
+      Application.get_env(:twitter_verify, :consumer_secret),
       access_token, access_token_secret)
     |> case do
       {:ok, body} ->
